@@ -10,6 +10,8 @@
 
 typedef int (*sorted_array_compare_func)( const game_item *a, const game_item *b );
 
+// this is basically the same as the array we've already studied
+// but this time we'll keep the list sorted as we add items to it
 typedef struct _sorted_array_storage_v1
 {
     array_storage _arr;
@@ -30,7 +32,13 @@ size_t sorted_array_get_storage_bytes( sorted_array_storage *a );
 void sorted_array_destroy( sorted_array_storage *a );
 
 void sorted_array_assign_index( sorted_array_storage *a, size_t idx, game_item *i );
+// HOWEVER: note we've had to add an api for when we are filling in a list otherwise
+// we'd be sorting uninitialized values constantly when we've been initialized with a size
+// but not yet given values...
 void sorted_array_finish_assign( sorted_array_storage *a );
+
+void sorted_array_delete_index( sorted_array_storage *a, size_t idx );
+
 game_item *sorted_array_get_index( sorted_array_storage *a, size_t idx );
 
 void sorted_array_add_one( sorted_array_storage *a, game_item *i );

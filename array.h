@@ -28,6 +28,9 @@ size_t array_get_storage_bytes( array_storage *a );
 void array_destroy( array_storage *a );
 
 void array_assign_index( array_storage *a, size_t idx, game_item *i );
+
+void array_delete_index( array_storage *a, size_t idx );
+
 game_item *array_get_index( array_storage *a, size_t idx );
 
 void array_add_one( array_storage *a, game_item *i );

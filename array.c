@@ -49,7 +49,6 @@ static void grow_array( array_storage *a, size_t num )
                         newcapacity = growth;
                 }
                 break;
-            case 0:
             case 1:
             default:
                 // we grow a single at a time, causing O(n^2) growth, for every item
@@ -123,6 +122,39 @@ void array_assign_index( array_storage *a, size_t idx, game_item *i )
 {
     if ( idx < a->count )
         a->_buf[idx] = *i;
+}
+
+void array_delete_index( array_storage *a, size_t idx )
+{
+    if ( idx < a->count )
+    {
+        if ( a->capacity_scale == 1 )
+        {
+            size_t newcapacity = a->count - 1;
+            game_item *newlist = malloc( sizeof(game_item) * newcapacity );
+            for ( size_t i = 0; i < idx; ++i )
+                newlist[i] = a->_buf[i];
+            // skip the one we're deleting by grabbing the item past it
+            for ( size_t i = idx; i < newcapacity; ++i )
+                newlist[i] = a->_buf[i+1];
+            free( a->_buf );
+            a->_buf = newlist;
+            a->count = newcapacity;
+            a->capacity = newcapacity;
+        }
+        else
+        {
+            // need to shift all the following entries back one..
+            // note that deleting from the beginning of the list is far
+            // more expensive than deleting from the end because you have to visit
+            // however many items are after the index to delete
+            size_t cm1 = a->count - 1;
+            for ( size_t i = idx; i < cm1; ++i )
+                a->_buf[i] = a->_buf[i+1];
+            a->count = a->count - 1;
+            // we can leave the capacity alone
+        }
+    }
 }
 
 game_item *array_get_index( array_storage *a, size_t idx )
@@ -202,6 +234,14 @@ static void test_array_operations_capacity( uint32_t n, int scale )
     array_init_with_list( &arr2, scale, arr._buf, n );
     end = timer_nsec();
     printf( "  array(scale=%d): fill with existing list: %lu\n", scale, end - start );
+
+    start = timer_nsec();
+    array_delete_index( &arr2, n / 4 );
+    array_delete_index( &arr2, n / 2 );
+    array_delete_index( &arr2, ( n * 3 ) / 4 );
+    end = timer_nsec();
+    printf( "  array(scale=%d): delete 3 items: %lu\n", scale, end - start );
+
     array_destroy( &arr2 );
 
     start = timer_nsec();

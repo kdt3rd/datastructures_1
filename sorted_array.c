@@ -13,11 +13,61 @@ static int sort_item_by_id( const game_item *a, const game_item *b )
     return 1;
 }
 
+static size_t quicksort_partition( game_item *arr, sorted_array_compare_func cf, size_t low, size_t high )
+{
+    size_t i, j, mid;
+    game_item tmp;
+    mid = (high - low) / 2 + low;
+
+    i = low - 1;
+    j = high + 1;
+
+    while ( 1 )
+    {
+        // Move the left index at least once while left is less than midpoint
+        do
+        {
+            i = i + 1;
+        } while ( cf( arr + i, arr + mid ) < 0 );
+
+        // Move the right index at least once while right is greater than midpoint
+        do
+        {
+            j = j - 1;
+        } while ( cf( arr + j, arr + mid ) > 0 );
+
+        if ( i >= j )
+            return j;
+
+        // swap left and right
+        tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+    }
+}
+
+static void quicksort( game_item *arr, sorted_array_compare_func cf, size_t low, size_t high )
+{
+    if ( low >= 0 && high >= 0 && low < high )
+    {
+        size_t p = quicksort_partition( arr, cf, low, high );
+        quicksort( arr, cf, low, p );
+        quicksort( arr, cf, p + 1, high );
+    }
+}
+
 static void resort_array( sorted_array_storage *a )
 {
-    int (*qsfunc)(const void *, const void *);
-    qsfunc = (int (*)(const void *, const void *)) a->compare_func;
-    qsort( a->_arr._buf, a->_arr.count, sizeof(game_item), qsfunc );
+    if ( a->_arr.count > 0 )
+    {
+        // cheat and use built-in sort function...
+        //int (*qsfunc)(const void *, const void *);
+        //qsfunc = (int (*)(const void *, const void *)) a->compare_func;
+        //qsort( a->_arr._buf, a->_arr.count, sizeof(game_item), qsfunc );
+
+        // the C library has qsort, but sorting algorithms are fun to learn
+        quicksort( a->_arr._buf, a->compare_func, 0, a->_arr.count - 1 );
+    }
 }
 
 void sorted_array_init( sorted_array_storage *a, int scale, sorted_array_compare_func cf )
@@ -45,6 +95,7 @@ void sorted_array_init_with_list(
 {
     array_init_with_list( &(a->_arr), scale, f, num );
     a->compare_func = cf;
+    // should already be sorted, but just in case
     resort_array( a );
 }
 
@@ -69,6 +120,13 @@ void sorted_array_assign_index( sorted_array_storage *a, size_t idx, game_item *
 void sorted_array_finish_assign( sorted_array_storage *a )
 {
     resort_array( a );
+}
+
+void sorted_array_delete_index( sorted_array_storage *a, size_t idx )
+{
+    array_delete_index( &(a->_arr), idx );
+    // just removing an entry does not change the sort order
+    // so we don't have to update the sort...
 }
 
 game_item *sorted_array_get_index( sorted_array_storage *a, size_t idx )
@@ -174,6 +232,14 @@ static void test_sorted_array_operations_capacity( uint32_t n, int scale )
     sorted_array_init_with_list( &arr2, scale, &sort_item_by_id, arr._arr._buf, n );
     end = timer_nsec();
     printf( "  sorted_array(scale=%d): fill with existing list: %lu\n", scale, end - start );
+
+    start = timer_nsec();
+    sorted_array_delete_index( &arr2, n / 4 );
+    sorted_array_delete_index( &arr2, n / 2 );
+    sorted_array_delete_index( &arr2, ( n * 3 ) / 4 );
+    end = timer_nsec();
+    printf( "  sorted_array(scale=%d): delete 3 items: %lu\n", scale, end - start );
+
     sorted_array_destroy( &arr2 );
 
     start = timer_nsec();
