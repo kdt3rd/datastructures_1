@@ -20,13 +20,15 @@ HEADERS := \
   item.h \
   timer.h
 
-sanitize:=-fsanitize=address
-#sanitize:=#
+#sanitize:=-fsanitize=address
+sanitize:=#
+optimize:=-O3
+#optimize:=-g
 
 all: test
 
 test: list_runner
 	@./$< 10000
 
-list_runner: $(FILES) $(HEADERS)
-	@clang -o $@ -g $(sanitize) $(FILES)
+list_runner: $(FILES) $(HEADERS) Makefile
+	@clang -o $@ $(optimize) $(sanitize) $(FILES)
