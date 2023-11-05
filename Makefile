@@ -26,7 +26,7 @@ sanitize:=-fsanitize=address
 all: test
 
 test: list_runner
-	@./$<
+	@./$< 10000
 
 list_runner: $(FILES) $(HEADERS)
 	@clang -o $@ -g $(sanitize) $(FILES)

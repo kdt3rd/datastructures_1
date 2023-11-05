@@ -16,12 +16,15 @@ typedef struct _array_storage_v1
 {
     game_item *_buf;
     size_t count;
+    size_t capacity;
+    int capacity_scale;
 } array_storage;
 
-void array_init( array_storage *a );
-void array_init_with_size( array_storage *a, size_t num );
-void array_init_with_list( array_storage *a, game_item *f, size_t num );
+void array_init( array_storage *a, int scale );
+void array_init_with_size( array_storage *a, int scale, size_t num );
+void array_init_with_list( array_storage *a, int scale, game_item *f, size_t num );
 
+size_t array_get_storage_bytes( array_storage *a );
 void array_destroy( array_storage *a );
 
 void array_assign_index( array_storage *a, size_t idx, game_item *i );
