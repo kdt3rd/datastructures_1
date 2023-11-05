@@ -9,4 +9,6 @@
 
 ////////////////////////////////////////
 
+void test_hash_map_operations( uint32_t n );
+
 #endif // LIST_RUNNER_HASH_MAP

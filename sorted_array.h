@@ -39,4 +39,7 @@ size_t sorted_array_find_items_along(
     sorted_array_storage *result,
     const ray *r );
 
+// main entry point
+void test_sorted_array_operations( uint32_t n );
+
 #endif // LIST_RUNNER_SORTED_ARRAY_STRUCTURE

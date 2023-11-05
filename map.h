@@ -9,4 +9,6 @@
 
 ////////////////////////////////////////
 
+void test_map_operations( uint32_t n );
+
 #endif // LIST_RUNNER_MAP

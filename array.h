@@ -33,4 +33,7 @@ void array_add_list( array_storage *a, game_item *i, size_t num );
 game_item *array_find_item( array_storage *a, uint32_t id );
 size_t array_find_items_along( array_storage *a, array_storage *result, const ray *r );
 
+// main entry point
+void test_array_operations( uint32_t n );
+
 #endif // LIST_RUNNER_ARRAY_STRUCTURE
